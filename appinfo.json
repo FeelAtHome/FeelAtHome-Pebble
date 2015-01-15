@@ -1,0 +1,19 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "robinlambertz.dev@gmail.com",
+    "longName": "Feel@Home",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "shortName": "Feel@Home",
+    "uuid": "63bfbfc2-e412-43c0-af59-e70fe92fbbc2",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
