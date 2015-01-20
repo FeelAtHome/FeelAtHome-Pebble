@@ -3,6 +3,7 @@
 #include "libft.h"
 #include "progress_bar.h"
 
+int count;
 Window *window;
 TextLayer *text;
 ActionBarLayer *action_bar;
@@ -27,25 +28,53 @@ void update_mytext_layer()
 
 void my_plus_click_handler(ClickRecognizerRef ref, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Next");
+  ProgressBarData* data = (ProgressBarData*)layer_get_data(progress_bar);
+  if (data->value >= 100)
+    return;
+  count = data->value;
+  progress_bar_layer_set_value(progress_bar, ++count);
+  update_mytext_layer();
+}
+
+void my_long_plus_click_handler(ClickRecognizerRef ref, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Next");
   ProgressBarData *data = (ProgressBarData*)layer_get_data(progress_bar);
   if (data->value >= 100)
     return;
-  progress_bar_layer_set_value(progress_bar, data->value + 1);
+  count = 100;
+  progress_bar_layer_set_value(progress_bar, count);
   update_mytext_layer();
 }
 
 void my_minus_click_handler(ClickRecognizerRef ref, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Previous");
+  ProgressBarData* data = (ProgressBarData*)layer_get_data(progress_bar);
+  if (data->value <= 0)
+    return;
+  count = data->value;
+  progress_bar_layer_set_value(progress_bar, --count);
+  update_mytext_layer();
+}
+
+void my_long_minus_click_handler(ClickRecognizerRef ref, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Previous");
   ProgressBarData *data = (ProgressBarData*)layer_get_data(progress_bar);
   if (data->value <= 0)
     return;
-  progress_bar_layer_set_value(progress_bar, data->value - 1);
+  count = 0;
+  progress_bar_layer_set_value(progress_bar, count);
   update_mytext_layer();
 }
 
 void click_config_provider(void *content) {
-  window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) my_minus_click_handler);
-  window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) my_plus_click_handler);
+  //window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) my_minus_click_handler);
+  window_single_repeating_click_subscribe(BUTTON_ID_DOWN, 30, (ClickHandler) my_minus_click_handler);
+  window_multi_click_subscribe(BUTTON_ID_DOWN, 3, 0, 0, false, (ClickHandler) my_long_minus_click_handler);
+  //window_long_click_subscribe(BUTTON_ID_DOWN, 0, my_long_minus_click_handler, NULL);
+  //window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) my_plus_click_handler);
+  window_single_repeating_click_subscribe(BUTTON_ID_UP, 30, (ClickHandler) my_plus_click_handler);
+  window_multi_click_subscribe(BUTTON_ID_UP, 3, 0, 0, false, (ClickHandler) my_long_plus_click_handler);
+  //window_long_click_subscribe(BUTTON_ID_UP, 0, my_long_plus_click_handler, NULL);
 }
 
 void set_song_info(char *title, char *artist)
@@ -98,10 +127,11 @@ void handle_init(void) {
 	layer_add_child(window_get_root_layer(window), progress_bar);
 
   text = text_layer_create(GRect(54, 99, 64, 16));
-  char *text_content = malloc(sizeof(char) * 3);
-  text_content[0] = '5';
-  text_content[1] = '0';
-  text_content[2] = '\0';
+  //char *text_content = malloc(sizeof(char) * 3);
+  char *text_content = ft_itoa(count);
+  //text_content[0] = '5';
+  //text_content[1] = '0';
+  //text_content[2] = '\0';
 	text_layer_set_text(text, text_content);
 	layer_add_child(window_get_root_layer(window), text_layer_get_layer(text));
 
@@ -114,6 +144,7 @@ void handle_init(void) {
 
 	// Push the window
 	window_stack_push(window, true);
+  free(text_content);
 }
 
 void handle_deinit(void) {
